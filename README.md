@@ -1,7 +1,7 @@
 # rag-chatbot-n8n
 
 This folder contains workflow exports from n8n v2.0.2 in JSON format.
-Note: Triggers are missing in most workflows. You will need to add them manually after importing.
+> Note: Triggers are missing in most workflows. You will need to add them manually after importing.
 
 # Requirements
 Before using these workflows, make sure you have the following set up:
