@@ -1,0 +1,433 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "modelName": "rerank-multilingual-v3.0",
+        "topN": 8
+      },
+      "type": "@n8n/n8n-nodes-langchain.rerankerCohere",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        1744
+      ],
+      "id": "02075127-f289-4b03-98c2-3c698e20dedf",
+      "name": "Reranker Cohere1",
+      "credentials": {
+        "cohereApi": {
+          "id": "VTzdncGwsinKvEhq",
+          "name": "CohereApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Use this tool to search the database",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "topK": 20,
+        "useReranker": true,
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "file_id",
+                "value": "={{ $json.text }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        -256,
+        1552
+      ],
+      "id": "6c04fa0d-cfff-45f4-aa92-053e7d3c8d1f",
+      "name": "Supabase Vector Store4",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ppFfjlw6tyAeSspc",
+          "name": "Practipal Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-oss:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -1136,
+        1520
+      ],
+      "id": "63990482-d68c-4c50-b264-81ddab3491e0",
+      "name": "Ollama Chat Model3",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ssQt209O8RVAo2M2",
+          "name": "Ollama account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-oss:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        1536
+      ],
+      "id": "2de69b01-863f-4914-911b-3e68bb42f182",
+      "name": "Ollama Chat Model4",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ssQt209O8RVAo2M2",
+          "name": "Ollama account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "bge-m3:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        1680
+      ],
+      "id": "20e6e4a2-16a0-4c49-8bd2-7b312a4136ed",
+      "name": "Embeddings Ollama5",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ssQt209O8RVAo2M2",
+          "name": "Ollama account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Find info relevant to the chat input.",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "useReranker": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        -848,
+        1536
+      ],
+      "id": "072a43a2-9aaf-43c4-ba4c-601f959100a0",
+      "name": "Supabase Vector Store5",
+      "credentials": {
+        "supabaseApi": {
+          "id": "hwaSdhh0Ol1TIpDf",
+          "name": "sum Sources"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "rerank-multilingual-v3.0",
+        "topN": 2
+      },
+      "type": "@n8n/n8n-nodes-langchain.rerankerCohere",
+      "typeVersion": 1,
+      "position": [
+        -752,
+        1696
+      ],
+      "id": "b219e721-bac0-4b3e-ab75-a3491f2f9d9d",
+      "name": "Reranker Cohere2",
+      "credentials": {
+        "cohereApi": {
+          "id": "VTzdncGwsinKvEhq",
+          "name": "CohereApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('When chat message received').item.json.sessionId }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -400,
+        1536
+      ],
+      "id": "d2293961-ed56-45ea-b1aa-4ca3c6694d5f",
+      "name": "Postgres Chat Memory2",
+      "credentials": {
+        "postgres": {
+          "id": "ANrR5QsLXMw9hKY2",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        -976,
+        1536
+      ],
+      "id": "06640faf-76c9-4697-a02d-8a4f6a0ed8b7",
+      "name": "Postgres Chat Memory3",
+      "credentials": {
+        "postgres": {
+          "id": "p2SDriClHtzi0XTf",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When chat message received').item.json.chatInput }}",
+        "options": {
+          "systemMessage": "=Είσαι βοηθός σε μια ιστοσελίδα για το πρόγραμμα πρακτικής άσκησης του Δημοκριτείου Πανεπιστημίου Θράκης. Οι φοιτητές θα κάνουν ερωτήσεις σχετικά με το πρόγραμμα και εσύ θα απαντάς μόνο με την πληροφορία που παρέχεται στην βάση δεδομένων.\nΗ απάντηση πρέπει να είναι στα Ελληνικά.\nΗ απάντηση πρέπει πάντα να τελειώνει με ενότητα Πηγές: και το όνομα του εγγράφου που χρησιμοποιήθηκε ή το url αν υπαρχει.\n\nΥΠΟΧΡΕΩΤΙΚΗ ΜΟΡΦΗ ΕΞΟΔΟΥ\nΘα εμφανίζεις ΑΚΡΙΒΩΣ ΜΙΑ ΦΟΡΑ το tag <ΑΠΑΝΤΗΣΗ> και θα είναι η τελευταία ενότητα που γράφεις.\nΜΗΝ γράψεις το string <ΑΠΑΝΤΗΣΗ> πουθενά αλλού (ούτε σε οδηγίες, ούτε σε σκέψεις, ούτε σε παραδείγματα).\nΜετά το τελευταίο <ΑΠΑΝΤΗΣΗ> γράφεις μόνο το τελικό κείμενο της απάντησης.\nΜΗΝ γράφεις τίποτα μετά την απάντηση.\nΠαράδειγμα:\n<ΑΠΑΝΤΗΣΗ>\n(τελικό κείμενο απάντησης)\n\nΑν δεν βρίσκεις την απάντηση στη βάση δεδομένων ή δεν είσαι βέβαιος για αυτήν, τότε απάντησε ΑΚΡΙΒΩΣ το παρακάτω, πάλι μέσα στα tags:\n<ΑΠΑΝΤΗΣΗ>\nΠαρακαλώ επικοινωνήστε με το Κεντρικό Γραφείο Πρακτικής Άσκησης μέσω e-mail στο praktiki@duth.gr\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -480,
+        1328
+      ],
+      "id": "13d45cc2-2612-4c3a-8d01-ecf439c23178",
+      "name": "Generative Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = String($input.first().json.output || '');\n\nconst openTag = '<ΑΠΑΝΤΗΣΗ>';\nconst lastOpen = raw.lastIndexOf(openTag);\n\nlet answer = '';\n\nif (lastOpen !== -1) {\n  // Πάρε ΟΛΟ το κείμενο μετά το τελευταίο <ΑΠΑΝΤΗΣΗ>\n  answer = raw.slice(lastOpen + openTag.length);\n} else {\n  // Fallback: αν δεν υπάρχει καν tag\n  answer = raw;\n}\n\n// Μετατροπή \\n σε πραγματικά line breaks + καθάρισμα\nanswer = answer.replace(/\\\\n/g, '\\n').trim();\n\nreturn [\n  {\n    text: answer\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        1328
+      ],
+      "id": "84c8b458-63d1-45e5-a2c7-f69930c3fa1f",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "model": "bge-m3:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        1744
+      ],
+      "id": "e4bec261-8d4b-432f-bccf-3c8ab36e4644",
+      "name": "Embeddings Ollama2",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ssQt209O8RVAo2M2",
+          "name": "Ollama account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = String($input.first().json.output || '');\n\nconst openTag = '<ΑΠΑΝΤΗΣΗ>';\nconst lastOpen = raw.lastIndexOf(openTag);\n\nlet answer = '';\n\nif (lastOpen !== -1) {\n  // Πάρε ΟΛΟ το κείμενο μετά το τελευταίο <ΑΠΑΝΤΗΣΗ>\n  answer = raw.slice(lastOpen + openTag.length);\n} else {\n  // Fallback: αν δεν υπάρχει καν tag\n  answer = raw;\n}\n\n// Μετατροπή \\n σε πραγματικά line breaks + καθάρισμα\nanswer = answer.replace(/\\\\n/g, '\\n').trim();\n\nreturn [\n  {\n    text: answer\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -720,
+        1328
+      ],
+      "id": "f7b4bc5d-d5e4-498e-94b9-1d6b6aba03da",
+      "name": "Code in JavaScript8"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=Στο Supabase Vector Store Tool έχεις δεδομένα. Ψάξε ποια πληροφορία είναι σχετική με την ερώτηση του χρήστη και επέστρεψε μόνο το όνομα του αρχείου δηλαδή το file_id.\nΥΠΟΧΡΕΩΤΙΚΗ ΜΟΡΦΗ ΕΞΟΔΟΥ\nΘα εμφανίζεις ΑΚΡΙΒΩΣ ΜΙΑ ΦΟΡΑ το tag <ΑΠΑΝΤΗΣΗ> και θα είναι η τελευταία ενότητα που γράφεις.\nΜΗΝ γράψεις το string <ΑΠΑΝΤΗΣΗ> πουθενά αλλού (ούτε σε οδηγίες, ούτε σε σκέψεις, ούτε σε παραδείγματα).\nΜετά το τελευταίο <ΑΠΑΝΤΗΣΗ> γράφεις μόνο το file_id  της απάντησης.\nΜΗΝ γράφεις τίποτα μετά την απάντηση.\nΠαράδειγμα:\n<ΑΠΑΝΤΗΣΗ>\nfile_id\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -1072,
+        1328
+      ],
+      "id": "449bfa03-501b-40a3-98b1-8fc033525e88",
+      "name": "Routing Agent"
+    }
+  ],
+  "connections": {
+    "Reranker Cohere1": {
+      "ai_reranker": [
+        [
+          {
+            "node": "Supabase Vector Store4",
+            "type": "ai_reranker",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store4": {
+      "ai_tool": [
+        [
+          {
+            "node": "Generative Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Routing Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generative Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama5": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store5",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store5": {
+      "ai_tool": [
+        [
+          {
+            "node": "Routing Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reranker Cohere2": {
+      "ai_reranker": [
+        [
+          {
+            "node": "Supabase Vector Store5",
+            "type": "ai_reranker",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "Generative Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory3": {
+      "ai_memory": [
+        [
+          {
+            "node": "Routing Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generative Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama2": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store4",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript8": {
+      "main": [
+        [
+          {
+            "node": "Generative Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Routing Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4e00e45994af68f368c9f70d96890226ba553d43b1552beb79c1c6cc895e128f"
+  }
+}

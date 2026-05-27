@@ -1,0 +1,1464 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        3648,
+        240
+      ],
+      "id": "760a4054-3e8d-4b28-a73e-e6e650b46311",
+      "name": "Supabase Vector Store2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "LBaGw7T4G5R8smgB",
+          "name": "Sources"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "bge-m3:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        3584,
+        400
+      ],
+      "id": "71636f40-c9d3-47a9-8bee-1991e537c10a",
+      "name": "Embeddings Ollama1",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ssQt209O8RVAo2M2",
+          "name": "Ollama account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "textSplittingMode": "custom",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "file_id",
+                "value": "={{ $('Download file2').item.json.file_id }}"
+              },
+              {
+                "name": "file_name",
+                "value": "={{ $('Download file2').item.json.file_name }}"
+              },
+              {
+                "name": "Url",
+                "value": "={{ $('Search files and folders').item.json.description }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        3728,
+        400
+      ],
+      "id": "de5bc187-a0da-46ef-9d9c-28932f466f30",
+      "name": "Default Data Loader1"
+    },
+    {
+      "parameters": {
+        "chunkSize": 2000,
+        "chunkOverlap": 200,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        3728,
+        544
+      ],
+      "id": "230c3d4a-01d9-4dd1-a618-4f3be07b0e48",
+      "name": "Recursive Character Text Splitter1"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Loop Over Items').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "text/plain"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2704,
+        240
+      ],
+      "id": "67b345c1-7942-4880-bdb8-24c1806c7f96",
+      "name": "Download file2",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7JoI6nPlq5ipTCHE",
+          "name": "Practipal Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "existing_files",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "file_id",
+              "fieldValue": "={{ $('Loop Over Items').item.json.id }}"
+            },
+            {
+              "fieldId": "file_name",
+              "fieldValue": "={{ $('Loop Over Items').item.json.name }}"
+            },
+            {
+              "fieldId": "file_version",
+              "fieldValue": "={{ $('Loop Over Items').item.json.version }}"
+            },
+            {
+              "fieldId": "url",
+              "fieldValue": "={{ $('Search files and folders').item.json.description }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2528,
+        240
+      ],
+      "id": "9298d6b8-1a71-44fe-ad95-d08bb74dc475",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "LBaGw7T4G5R8smgB",
+          "name": "Sources"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        1936,
+        208
+      ],
+      "id": "f95fdffa-55da-4b53-a0dc-519202e9f8e2",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "efe37374-3a28-4642-b612-da90e094772a",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "={{ $json.file_name }}",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2336,
+        224
+      ],
+      "id": "9dc61eb3-2608-475f-aec8-4518491d7a69",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "existing_files",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "file_id",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2144,
+        224
+      ],
+      "id": "591e48e6-33dc-4aab-9f6a-800bfc41e6d8",
+      "name": "Get a row",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "LBaGw7T4G5R8smgB",
+          "name": "Sources"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1UKimkraCZksbO95oEv7HRt8v3_MMNkKf",
+            "mode": "list",
+            "cachedResultName": "Sources",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1UKimkraCZksbO95oEv7HRt8v3_MMNkKf"
+          }
+        },
+        "options": {
+          "fields": [
+            "name",
+            "id",
+            "version",
+            "*"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1744,
+        208
+      ],
+      "id": "403dc839-05d6-4a26-ac71-aed77f77ab3c",
+      "name": "Search files and folders",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7JoI6nPlq5ipTCHE",
+          "name": "Practipal Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        1408,
+        208
+      ],
+      "id": "e70f9f5e-86b0-4169-9f67-95e5e9ddff7e",
+      "name": "Creation RAG DB",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "id": "f3b170ee-6de1-47b6-b614-32e9a66b58f7",
+      "name": "Extract from File2",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        3152,
+        128
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{$binary.data.fileExtension}}",
+                    "rightValue": "txt",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "e96fac50-7e47-4951-a5cd-fb41df9f0678"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "TXT"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5e1f680b-6aa9-4faf-9cbe-fa30948182f4",
+                    "leftValue": "={{$binary.data.fileExtension}}",
+                    "rightValue": "pdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "PDF"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        2864,
+        240
+      ],
+      "id": "16074ed5-589e-4af8-a2f8-c386df3b5c8c",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "id": "2de7c9bf-9c45-406a-b87c-37bb1e9a108c",
+      "name": "Extract from File3",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        3136,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const endKeyword = \"ΔΙΕΥΘΥΝΣΗ ΓΡΑΦΕΙΑ ΠΡΑΚΤΙΚΗΣ ΑΣΚΗΣΗΣ\";\nconst text = $input.first().json.data;\nlet cleanedText = text;\ncleanedText = cleanedText.replace(/<!DOCTYPE html>[\\s\\S]*?Επιλογή Σελίδας/g, '');\nif (cleanedText.includes(endKeyword)) {\n  cleanedText = cleanedText.split(endKeyword)[0];\n}\ncleanedText = cleanedText.trim();\nreturn { cleanedText };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3328,
+        128
+      ],
+      "id": "3a84be68-25fd-4fa8-82ef-9558f031e359",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "jsCode": "//const text = $input.first().json.text;\nconst text = $input.first().json.text.replace(/\\n/g, ' ');\n\nreturn { text };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3328,
+        352
+      ],
+      "id": "a87e8a02-898c-48c6-9d39-3716052f9a8c",
+      "name": "Code in JavaScript5"
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "documents",
+        "filterType": "string",
+        "filterString": "=metadata->>file_id=eq.{{ $json.id }}"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2496,
+        960
+      ],
+      "id": "b4bec286-052f-4b56-bc92-339cc0bafeb5",
+      "name": "Delete a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ppFfjlw6tyAeSspc",
+          "name": "Practipal Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Search files and folders2').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "text/plain"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2496,
+        1136
+      ],
+      "id": "1c197fc2-f8aa-4ed7-bad2-119030ea730b",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7JoI6nPlq5ipTCHE",
+          "name": "Practipal Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1Eej4rlg2ZpG8edG_kHUvI8Xr9yb-t3WG",
+            "mode": "list",
+            "cachedResultName": "n8n",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1Eej4rlg2ZpG8edG_kHUvI8Xr9yb-t3WG"
+          }
+        },
+        "options": {
+          "fields": [
+            "name",
+            "id",
+            "version"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1728,
+        1632
+      ],
+      "id": "ec75c27f-6e8e-411c-b6cb-d40b727bb3ef",
+      "name": "Search files and folders1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "VzBdFlqapziRtDy0",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "documents",
+        "filterType": "string",
+        "filterString": "=metadata->>file_id=eq.{{ $json.file_id }}"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2336,
+        1600
+      ],
+      "id": "865a5ae0-be41-40e5-b5df-545bc3469a5a",
+      "name": "Delete a row- Documents",
+      "credentials": {
+        "supabaseApi": {
+          "id": "dcyGHaAJM5YGNuC2",
+          "name": "RAG small files"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "existing_files",
+        "filterType": "string",
+        "filterString": "=file_id=eq.{{ $json.file_id }}"
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2336,
+        1920
+      ],
+      "id": "f6a59aeb-2f98-4560-9666-96407b04bc55",
+      "name": "Delete a row- existing files",
+      "credentials": {
+        "supabaseApi": {
+          "id": "dcyGHaAJM5YGNuC2",
+          "name": "RAG small files"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT file_id FROM existing_files;\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1728,
+        1824
+      ],
+      "id": "4b65fa46-e9fc-40a9-aa9e-6459b529b3e5",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "ANrR5QsLXMw9hKY2",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "id",
+              "field2": "file_id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.compareDatasets",
+      "typeVersion": 2.3,
+      "position": [
+        1936,
+        1696
+      ],
+      "id": "a58b7407-3d61-409b-ad0b-3a1fa52b0b96",
+      "name": "Compare Datasets"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1UKimkraCZksbO95oEv7HRt8v3_MMNkKf",
+            "mode": "list",
+            "cachedResultName": "Sources",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1UKimkraCZksbO95oEv7HRt8v3_MMNkKf"
+          }
+        },
+        "options": {
+          "fields": [
+            "name",
+            "id",
+            "version"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1536,
+        912
+      ],
+      "id": "29c06d1c-3c7f-42f7-9430-555ce2ac013c",
+      "name": "Search files and folders2",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7JoI6nPlq5ipTCHE",
+          "name": "Practipal Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT  file_name, file_id, file_version FROM existing_files;\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1568,
+        1136
+      ],
+      "id": "fe0b6883-af52-426e-9519-faa94364246c",
+      "name": "Execute a SQL query1",
+      "credentials": {
+        "postgres": {
+          "id": "ANrR5QsLXMw9hKY2",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "98336e50-d27b-4f53-ad8d-022ef139bc9f",
+              "name": "version",
+              "value": "={{ $json.version }}",
+              "type": "number"
+            },
+            {
+              "id": "db98aa4b-00ae-4b12-a94c-3e2ea336c510",
+              "name": "name",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "ab70bc92-4615-40a1-a506-45ddacc7461e",
+              "name": "id",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1696,
+        912
+      ],
+      "id": "3973a7f4-b106-4af7-9d92-15ce9e486723",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2112,
+        1040
+      ],
+      "id": "4c103075-e507-43ed-91cd-f8df3292ea20",
+      "name": "Loop Over Items2"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "version",
+              "field2": "file_version"
+            },
+            {
+              "field1": "id",
+              "field2": "file_id"
+            }
+          ]
+        },
+        "joinMode": "keepNonMatches",
+        "outputDataFrom": "input1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1872,
+        1040
+      ],
+      "id": "a37100b8-0816-4da2-8947-71c127f06efc",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "existing_files",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "file_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "file_version",
+              "fieldValue": "={{ $json.version }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2496,
+        800
+      ],
+      "id": "748cdfb9-4fbb-4d0b-8564-b2ef78c499ef",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ppFfjlw6tyAeSspc",
+          "name": "Practipal Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtMinute": 5
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        1328,
+        1024
+      ],
+      "id": "dd470c3b-8fbe-4a4d-b663-7e249dd6b45a",
+      "name": "Update RAG DB",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtMinute": 10
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        1456,
+        1728
+      ],
+      "id": "922ea0af-4658-4226-8f89-2adface3052d",
+      "name": "Delete RAG DB",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "model": "bge-m3:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        3328,
+        1280
+      ],
+      "id": "5eba6f4a-7285-461a-9de0-706fb843f71a",
+      "name": "Embeddings Ollama",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ssQt209O8RVAo2M2",
+          "name": "Ollama account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "textSplittingMode": "custom",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "file_id",
+                "value": "={{ $('Download file2').item.json.file_id }}"
+              },
+              {
+                "name": "file_name",
+                "value": "={{ $('Download file2').item.json.file_name }}"
+              },
+              {
+                "name": "Url",
+                "value": "={{ $('Search files and folders').item.json.description }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        3472,
+        1280
+      ],
+      "id": "10e36133-4c05-4fb0-bbfe-01c21df8268d",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "chunkSize": 2000,
+        "chunkOverlap": 200,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        3472,
+        1440
+      ],
+      "id": "afd4392d-5709-42a3-8b60-969d5d635759",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "id": "28d4c48d-eb78-462e-8130-fc64be481ef6",
+      "name": "Extract from File5",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        2944,
+        1008
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{$binary.data.fileExtension}}",
+                    "rightValue": "txt",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "e96fac50-7e47-4951-a5cd-fb41df9f0678"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "TXT"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5e1f680b-6aa9-4faf-9cbe-fa30948182f4",
+                    "leftValue": "={{$binary.data.fileExtension}}",
+                    "rightValue": "pdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "PDF"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        2704,
+        1136
+      ],
+      "id": "196b2645-a14c-4a50-a516-9c4099194883",
+      "name": "Switch2"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "id": "45077b46-50da-4d31-8299-ab7300624dd3",
+      "name": "Extract from File6",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        2928,
+        1232
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const endKeyword = \"ΔΙΕΥΘΥΝΣΗ ΓΡΑΦΕΙΑ ΠΡΑΚΤΙΚΗΣ ΑΣΚΗΣΗΣ\";\nconst text = $input.first().json.data;\n\nlet cleanedText = text;\n\n// 1. Διαγραφή του πάνω μέρους: Από <!DOCTYPE html> μέχρι και Επιλογή Σελίδας\n// Το [\\s\\S]*? διασφαλίζει ότι θα διαγραφούν όλα τα ενδιάμεσα, συμπεριλαμβανομένων των αλλαγών γραμμής (enters)\ncleanedText = cleanedText.replace(/<!DOCTYPE html>[\\s\\S]*?Επιλογή Σελίδας/g, '');\n\n// 2. Διαγραφή του κάτω μέρους: Από ΔΙΕΥΘΥΝΣΗ ΓΡΑΦΕΙΑ ΠΡΑΚΤΙΚΗΣ ΑΣΚΗΣΗΣ και κάτω\nif (cleanedText.includes(endKeyword)) {\n  cleanedText = cleanedText.split(endKeyword)[0];\n}\n\n// 3. Καθαρισμός των περιττών κενών (spaces/enters) στην αρχή και στο τέλος του τελικού κειμένου\ncleanedText = cleanedText.trim();\n\nreturn { cleanedText };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3104,
+        1008
+      ],
+      "id": "1464c45b-961d-4b83-9d4a-f83c43c61bc0",
+      "name": "Code in JavaScript6"
+    },
+    {
+      "parameters": {
+        "jsCode": "//const text = $input.first().json.text;\nconst text = $input.first().json.text.replace(/\\n/g, ' ');\n\nreturn { text };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3104,
+        1232
+      ],
+      "id": "77f2d69e-886d-4fa5-99c0-112c7b6658bf",
+      "name": "Code in JavaScript7"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        3440,
+        1120
+      ],
+      "id": "29f7ff24-daac-49ba-8a4c-ae42a9d293dc",
+      "name": "Supabase Vector Store3",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ppFfjlw6tyAeSspc",
+          "name": "Practipal Account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Supabase Vector Store2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store2",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader1": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store2",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter1": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader1",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file2": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Download file2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a row": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Creation RAG DB": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Extract from File2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract from File3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript5": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Switch2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders1": {
+      "main": [
+        [
+          {
+            "node": "Compare Datasets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Compare Datasets",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Compare Datasets": {
+      "main": [
+        [],
+        [],
+        [],
+        [
+          {
+            "node": "Delete a row- Documents",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Delete a row- existing files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items2": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Delete a row1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update RAG DB": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Execute a SQL query1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete RAG DB": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store3",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store3",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File5": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch2": {
+      "main": [
+        [
+          {
+            "node": "Extract from File5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract from File6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File6": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript6": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript7": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4e00e45994af68f368c9f70d96890226ba553d43b1552beb79c1c6cc895e128f"
+  }
+}

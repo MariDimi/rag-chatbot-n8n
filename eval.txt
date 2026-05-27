@@ -1,0 +1,1241 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-oss:latest",
+          "mode": "list",
+          "cachedResultName": "gpt-oss:latest"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Είσαι ένας αυστηρός και αντικειμενικός αξιολογητής συστημάτων AI. Η αποστολή σου είναι να αξιολογήσεις τη μετρική \"Faithfulness\" (Πιστότητα/Απουσία Ψευδαισθήσεων) ενός συστήματος RAG. Δεν πρέπει να χρησιμοποιήσεις καμία εξωτερική σου γνώση, παρά μόνο τα δεδομένα που σου παρέχονται.\n\nΘα σου δοθεί μια παραγόμενη Απάντηση (Answer) και ένα σύνολο από ανακτημένα κείμενα (Context).\nΠρέπει να βαθμολογήσεις κατά πόσο οι ισχυρισμοί και οι πληροφορίες που περιέχονται στην Απάντηση πηγάζουν ΑΠΟΚΛΕΙΣΤΙΚΑ από τα ανακτημένα κείμενα. \n\nΣΗΜΑΝΤΙΚΗ ΟΔΗΓΙΑ ΓΙΑ ΤΗ ΔΟΜΗ ΤΩΝ ΔΕΔΟΜΕΝΩΝ:\nΚάθε ανακτημένο κείμενο περικλείεται αυστηρά μέσα σε ετικέτες (delimiters) της μορφής <context id=X> ... </context>, όπου το X είναι ο αύξων αριθμός του κειμένου. Να χρησιμοποιείς αυτά τα όρια για να κατανοείς πού ξεκινάει και πού καταλήγει το κάθε ξεχωριστό κομμάτι πληροφορίας.\n\nΟδηγίες Βαθμολόγησης (από 0 έως 5):\n- 5: Η απάντηση είναι απόλυτα πιστή. Όλοι οι ισχυρισμοί της υποστηρίζονται πλήρως από τα κείμενα, χωρίς καμία προσθήκη εξωτερικής πληροφορίας.\n- 4: Η απάντηση βασίζεται στα κείμενα, αλλά κάνει πολύ μικρές, ακίνδυνες υποθέσεις ή επαναδιατυπώσεις που δεν αλλοιώνουν το νόημα.\n- 2-3: Η απάντηση περιέχει σωστές πληροφορίες από τα κείμενα, αλλά προσθέτει και σημαντικές λεπτομέρειες ή ισχυρισμούς που ΔΕΝ υπάρχουν στο context (Μερική Ψευδαίσθηση).\n- 1: Η απάντηση περιέχει ελάχιστα στοιχεία από τα κείμενα και είναι κυρίως κατασκευασμένη.\n- 0: Η απάντηση είναι εντελώς αυθαίρετη ή έρχεται σε άμεση αντίθεση με τα κείμενα (Πλήρης Ψευδαίσθηση/Hallucination).\n\n--- ΔΕΔΟΜΕΝΑ ---\nΠΑΡΑΓΟΜΕΝΗ ΑΠΑΝΤΗΣΗ:\n{{ $json['Answer '] }}\n\nΑΝΑΚΤΗΜΕΝΑ ΚΕΙΜΕΝΑ (CONTEXT):\n{{ $json.Chunks }}\n----------------\n\nΕπίστρεψε το αποτέλεσμά σου ΑΥΣΤΗΡΑ ως ένα έγκυρο JSON αντικείμενο, χωρίς markdown tags (π.χ. ```json), με την εξής μορφή:\n{\n  \"reason\": \"Σύντομη εξήγηση στα ελληνικά . Αν εντοπίσεις ψευδαίσθηση, ανέφερε ποια πληροφορία της απάντησης ΔΕΝ υπάρχει στα context. Αν είναι πιστή, ανέφερε από ποια context ids προέκυψε.\",\n  \"score\": <ακέραιος αριθμός 0-5>\n}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.ollama",
+      "typeVersion": 1,
+      "position": [
+        7648,
+        1408
+      ],
+      "id": "f3bf919d-4f47-4531-ad77-18ecaf3a3c84",
+      "name": "Faithfulness",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ssQt209O8RVAo2M2",
+          "name": "Ollama account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-oss:latest",
+          "mode": "list",
+          "cachedResultName": "gpt-oss:latest"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Είσαι ένας αυστηρός και αντικειμενικός αξιολογητής συστημάτων AI. Η αποστολή σου είναι να αξιολογήσεις τη μετρική \"Answer Relevance\" (Σχετικότητα Απάντησης) ενός συστήματος RAG.\n\nΘα σου δοθεί μια Ερώτηση (Question) και η παραγόμενη Απάντηση (Answer).\nΠρέπει να βαθμολογήσεις κατά πόσο η απάντηση απαντάει άμεσα, πλήρως και περιεκτικά στην ερώτηση, χωρίς να αποφεύγει το θέμα και χωρίς να περιλαμβάνει άσχετες ή περιττές πληροφορίες (φλυαρία).\n\nΟδηγίες Βαθμολόγησης (από 0 έως 5):\n- 5: Η απάντηση είναι άμεση, πλήρης και απόλυτα σχετική με την ερώτηση. Δεν περιέχει καθόλου περιττές πληροφορίες.\n- 4: Η απάντηση απαντά επαρκώς στην ερώτηση, αλλά ίσως περιλαμβάνει λίγη επιπλέον πληροφορία που δεν ζητήθηκε άμεσα.\n- 2-3: Η απάντηση είναι εν μέρει σχετική. Είτε απαντάει μόνο σε ένα μέρος της ερώτησης (αν ήταν σύνθετη), είτε \"χάνεται\" σε άσχετες λεπτομέρειες πριν δώσει την ουσία.\n- 1: Η απάντηση είναι ασαφής, αποφεύγει την ερώτηση ή μόλις που αγγίζει το θέμα.\n- 0: Η απάντηση είναι εντελώς άσχετη με την ερώτηση ή απλά δηλώνει αδυναμία απάντησης (π.χ. \"Δεν γνωρίζω\").\n\n--- ΔΕΔΟΜΕΝΑ ---\nΕΡΩΤΗΣΗ:\n{{ $json.Question }}\n\nΠΑΡΑΓΟΜΕΝΗ ΑΠΑΝΤΗΣΗ:\n{{ $json['Answer '] }}\n----------------\n\nΕπίστρεψε το αποτέλεσμά σου ΑΥΣΤΗΡΑ ως ένα έγκυρο JSON αντικείμενο, χωρίς markdown tags (π.χ. ```json), με την εξής μορφή:\n{\n  \"reason\": \"Σύντομη εξήγηση στα ελληνικά για το αν η απάντηση κάλυψε την ερώτηση ή αν υπήρξε φλυαρία/έλλειψη πληροφορίας.\",\n  \"score\": <ακέραιος αριθμός 0-5>\n}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.ollama",
+      "typeVersion": 1,
+      "position": [
+        7664,
+        1616
+      ],
+      "id": "1c9103df-7a55-44f7-a0a9-3d84936fb13b",
+      "name": "Answer Relevance",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ssQt209O8RVAo2M2",
+          "name": "Ollama account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-oss:latest",
+          "mode": "list",
+          "cachedResultName": "gpt-oss:latest"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Είσαι ένας αυστηρός και αντικειμενικός αξιολογητής συστημάτων AI. Η αποστολή σου είναι να αξιολογήσεις τη μετρική \"Context Precision\" ενός συστήματος RAG.\nΟ σκοπός σου είναι να ελέγξεις αν τα ανακτημένα κείμενα ταυτίζονται με το ακριβές Ιδανικό Κείμενο (Ground Truth) και αν προέρχονται από τη σωστή Αναμενόμενη Πηγή.\n\nΘα σου δοθεί μια Ερώτηση (Question), το αυτούσιο Ιδανικό Κείμενο (Ground Truth), η Αναμενόμενη Πηγή (Source) και ένα σύνολο από ανακτημένα κείμενα (Context).\nΚάθε ανακτημένο κείμενο περικλείεται σε ετικέτες <context id=X> ... </context>. \n\nΛειτούργησε ως εξής:\n1. Σύγκρινε τα Ανακτημένα Κείμενα με το Ιδανικό Κείμενο (Ground Truth). Επειδή το Ground Truth είναι αυτούσιο απόσπασμα, ψάξε να δεις αν υπάρχει ολόκληρο (ή έστω το 100% του νοήματός του) μέσα στα ανακτημένα chunks.\n2. Έλεγξε αν η πληροφορία στα chunks επιβεβαιώνεται ότι προέρχεται από την Αναμενόμενη Πηγή.\n\nΟδηγίες Βαθμολόγησης (από 0 έως 5):\n- 5: Απόλυτη Ταύτιση. Το σύνολο του Ground Truth βρίσκεται αυτούσιο (ή με ελάχιστες αποκλίσεις) μέσα στα ανακτημένα κείμενα ΚΑΙ ταυτίζεται με τη σωστή Πηγή. Τυχόν άσχετα κείμενα (άλλα context ids) αγνοούνται και δεν ρίχνουν το βαθμό εφόσον βρέθηκε το σωστό.\n- 4: Πολύ καλή Ταύτιση. Η ουσία και τα δεδομένα του Ground Truth υπάρχουν στα κείμενα, αλλά ίσως \"κόπηκε\" μια μικρή πρόταση κατά το chunking.\n- 2-3: Μερική Ταύτιση. Τα κείμενα περιέχουν μόνο ένα μέρος (π.χ. το μισό) του Ground Truth. Ο retriever δεν κατάφερε να φέρει όλη την απαραίτητη πληροφορία.\n- 1: Ελάχιστη Ταύτιση. Βρέθηκαν μόνο σκόρπιες λέξεις ή πολύ φτωχή πληροφορία.\n- 0: Αποτυχία. Τα ανακτημένα κείμενα είναι εντελώς άσχετα με το Ground Truth ή προέρχονται όλα από εντελώς λάθος πηγές.\n\n--- ΔΕΔΟΜΕΝΑ ---\nΕΡΩΤΗΣΗ:\n{{ $json.Question }}\n\nΙΔΑΝΙΚΟ ΚΕΙΜΕΝΟ (GROUND TRUTH):\n{{ $json['Ground Truth Context'] }}\n\nΑΝΑΜΕΝΟΜΕΝΗ ΠΗΓΗ (SOURCE):\n{{ $json[\"Πηγή\"] }}\n\nΑΝΑΚΤΗΜΕΝΑ ΚΕΙΜΕΝΑ (CONTEXT):\n{{ $json.Chunks }}\n----------------\n\nΕπίστρεψε το αποτέλεσμά σου ΑΥΣΤΗΡΑ ως ένα έγκυρο JSON αντικείμενο, χωρίς markdown tags (π.χ. ```json), με την εξής μορφή:\n{\n  \"reason\": \"Εξήγησε σε ποια context ids βρέθηκε το Ground Truth και επιβεβαίωσε αν η Πηγή είναι η σωστή. Αν λείπει κάτι από το Ground Truth, ανέφερέ το ρητά.\",\n  \"relevant_context_ids\": [λίστα με τα ids που περιέχουν το κείμενο, π.χ. [1, 3]. Αν κανένα, βάλε []],\n  \"score\": <ακέραιος αριθμός 0-5>\n}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.ollama",
+      "typeVersion": 1,
+      "position": [
+        7664,
+        1152
+      ],
+      "id": "4c9aa324-e0f9-48c4-bfe9-924c3cd18d66",
+      "name": "Context Precision",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ssQt209O8RVAo2M2",
+          "name": "Ollama account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-oss:latest",
+        "options": {
+          "numCtx": 2048,
+          "format": "default"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        5744,
+        1520
+      ],
+      "id": "45ce1216-c1ee-476b-80e2-9df5bd822ca8",
+      "name": "Ollama Chat Model6",
+      "notesInFlow": false,
+      "credentials": {
+        "ollamaApi": {
+          "id": "ssQt209O8RVAo2M2",
+          "name": "Ollama account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Find info relevant to the chat input.",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "topK": 15,
+        "useReranker": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        5968,
+        1520
+      ],
+      "id": "0a994169-62eb-4af9-9e8f-8b1e8b1803c3",
+      "name": "Supabase Vector Store1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ppFfjlw6tyAeSspc",
+          "name": "Practipal Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "rerank-multilingual-v3.0",
+        "topN": 4
+      },
+      "type": "@n8n/n8n-nodes-langchain.rerankerCohere",
+      "typeVersion": 1,
+      "position": [
+        6096,
+        1680
+      ],
+      "id": "3a117104-2e4e-45ab-91a4-00700768f163",
+      "name": "Reranker Cohere3",
+      "credentials": {
+        "cohereApi": {
+          "id": "VTzdncGwsinKvEhq",
+          "name": "CohereApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.Questions }}",
+        "options": {
+          "systemMessage": "Είσαι βοηθός σε ιστοσελίδα για το πρόγραμμα πρακτικής άσκησης του Δημοκριτείου Πανεπιστημίου Θράκης (ΔΠΘ).\nΟι φοιτητές θα κάνουν ερωτήσεις σχετικά με το πρόγραμμα και εσύ θα απαντάς αποκλειστικά με πληροφορίες που υπάρχουν στη βάση δεδομένων.\nΗ απάντηση πρέπει να είναι στα Ελληνικά.\nΗ απάντηση πρέπει πάντα να τελειώνει με ενότητα Πηγές: και το όνομα του εγγράφου που χρησιμοποιήθηκε ή το url σε οποια έγγραφα υπάρχει.\n\nΥΠΟΧΡΕΩΤΙΚΗ ΜΟΡΦΗ ΕΞΟΔΟΥ\nΘα εμφανίζεις ΑΚΡΙΒΩΣ ΜΙΑ ΦΟΡΑ το tag <ΑΠΑΝΤΗΣΗ> και θα είναι η τελευταία ενότητα που γράφεις.\nΜΗΝ γράψεις το string <ΑΠΑΝΤΗΣΗ> πουθενά αλλού (ούτε σε οδηγίες, ούτε σε σκέψεις, ούτε σε παραδείγματα).\nΜετά το τελευταίο <ΑΠΑΝΤΗΣΗ> γράφεις μόνο το τελικό κείμενο της απάντησης.\nΜΗΝ γράφεις τίποτα μετά την απάντηση.\nΠαράδειγμα:\n<ΑΠΑΝΤΗΣΗ>\n(τελικό κείμενο απάντησης)\n\nΑν δεν βρίσκεις την απάντηση στη βάση δεδομένων ή δεν είσαι βέβαιος για αυτήν, τότε απάντησε ΑΚΡΙΒΩΣ το παρακάτω, πάλι μέσα στα tags:\n<ΑΠΑΝΤΗΣΗ>\nΠαρακαλώ επικοινωνήστε με το Κεντρικό Γραφείο Πρακτικής Άσκησης μέσω e-mail στο praktiki@duth.gr\n",
+          "returnIntermediateSteps": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        5904,
+        1312
+      ],
+      "id": "67e470e3-f217-4091-97f0-b011af41f401",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "fieldsToMatchString": "Question",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        6992,
+        1312
+      ],
+      "id": "0b12da54-3e62-4867-9ac3-392f18e68557",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "199AfglVui9Vk5SYePD_yR83iH98YtPnB3brLd43hPd4",
+          "mode": "list",
+          "cachedResultName": "GTmaria",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/199AfglVui9Vk5SYePD_yR83iH98YtPnB3brLd43hPd4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 102936725,
+          "mode": "list",
+          "cachedResultName": "ContextPrescision",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/199AfglVui9Vk5SYePD_yR83iH98YtPnB3brLd43hPd4/edit#gid=102936725"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Question": "={{ $('Merge').item.json.Question }}",
+            "Score": "={{ $json.score }}",
+            "Reason ": "={{ $json.reason }}"
+          },
+          "matchingColumns": [
+            "Question"
+          ],
+          "schema": [
+            {
+              "id": "Question",
+              "displayName": "Question",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Score",
+              "displayName": "Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Reason ",
+              "displayName": "Reason ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        8224,
+        1152
+      ],
+      "id": "bb9e25f9-c0fe-4356-a78f-203ab0fd25c5",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PUbFwLFjJoXzwDHa",
+          "name": "Google Sheets account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop through all incoming items\nreturn items.map(item => {\n  // 1. Get the string from the 'content' field\n  const rawContent = item.json.content;\n\n  try {\n    // 2. Parse the string into a real JSON object\n    const parsedData = JSON.parse(rawContent);\n\n    // 3. Return only the fields you want for your table\n    return {\n      score: parsedData.score,\n      reason: parsedData.reason\n    };\n  } catch (error) {\n    // Handle cases where the LLM output might not be valid JSON\n    return {\n      score: 0,\n      reason: \"Error parsing LLM response\",\n      error: error.message\n    };\n  }\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        8016,
+        1152
+      ],
+      "id": "0a3afa60-ae0e-431b-9385-156ce7547ddf",
+      "name": "Code for ContextPrecision"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop through all incoming items\nreturn items.map(item => {\n  // 1. Get the string from the 'content' field\n  const rawContent = item.json.content;\n\n  try {\n    // 2. Parse the string into a real JSON object\n    const parsedData = JSON.parse(rawContent);\n\n    // 3. Return only the fields you want for your table\n    return {\n      score: parsedData.score,\n      reason: parsedData.reason\n    };\n  } catch (error) {\n    // Handle cases where the LLM output might not be valid JSON\n    return {\n      score: 0,\n      reason: \"Error parsing LLM response\",\n      error: error.message\n    };\n  }\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        8016,
+        1408
+      ],
+      "id": "bd4e90aa-0f05-4ba7-8582-8eb517b14f0e",
+      "name": "Code in Faithfulness"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop through all incoming items\nreturn items.map(item => {\n  // 1. Get the string from the 'content' field\n  const rawContent = item.json.content;\n\n  try {\n    // 2. Parse the string into a real JSON object\n    const parsedData = JSON.parse(rawContent);\n\n    // 3. Return only the fields you want for your table\n    return {\n      score: parsedData.score,\n      reason: parsedData.reason\n    };\n  } catch (error) {\n    // Handle cases where the LLM output might not be valid JSON\n    return {\n      score: 0,\n      reason: \"Error parsing LLM response\",\n      error: error.message\n    };\n  }\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        8016,
+        1616
+      ],
+      "id": "fdf7aed2-22c8-491c-9ddc-f2760cfa564c",
+      "name": "Code for relevance"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "199AfglVui9Vk5SYePD_yR83iH98YtPnB3brLd43hPd4",
+          "mode": "list",
+          "cachedResultName": "GTmaria",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/199AfglVui9Vk5SYePD_yR83iH98YtPnB3brLd43hPd4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 154786906,
+          "mode": "list",
+          "cachedResultName": "Faithfulness",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/199AfglVui9Vk5SYePD_yR83iH98YtPnB3brLd43hPd4/edit#gid=154786906"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Question": "={{ $('Merge').item.json.Question }}",
+            "Score": "={{ $json.score }}",
+            "Reason ": "={{ $json.reason }}"
+          },
+          "matchingColumns": [
+            "Question"
+          ],
+          "schema": [
+            {
+              "id": "Question",
+              "displayName": "Question",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Score",
+              "displayName": "Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Reason ",
+              "displayName": "Reason ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        8224,
+        1408
+      ],
+      "id": "d33861fa-6915-4e50-b7b2-c04f42d9c975",
+      "name": "Update row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PUbFwLFjJoXzwDHa",
+          "name": "Google Sheets account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "199AfglVui9Vk5SYePD_yR83iH98YtPnB3brLd43hPd4",
+          "mode": "list",
+          "cachedResultName": "GTmaria",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/199AfglVui9Vk5SYePD_yR83iH98YtPnB3brLd43hPd4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 828707146,
+          "mode": "list",
+          "cachedResultName": "AnswerRelevance",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/199AfglVui9Vk5SYePD_yR83iH98YtPnB3brLd43hPd4/edit#gid=828707146"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Question": "={{ $('Merge').item.json.Question }}",
+            "Score": "={{ $json.score }}",
+            "Reason ": "={{ $json.reason }}"
+          },
+          "matchingColumns": [
+            "Question"
+          ],
+          "schema": [
+            {
+              "id": "Question",
+              "displayName": "Question",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Score",
+              "displayName": "Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Reason ",
+              "displayName": "Reason ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        8240,
+        1616
+      ],
+      "id": "5b153f9a-144a-4317-8c51-9e285988761f",
+      "name": "Update row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PUbFwLFjJoXzwDHa",
+          "name": "Google Sheets account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "199AfglVui9Vk5SYePD_yR83iH98YtPnB3brLd43hPd4",
+          "mode": "list",
+          "cachedResultName": "GTmaria",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/199AfglVui9Vk5SYePD_yR83iH98YtPnB3brLd43hPd4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 720457699,
+          "mode": "list",
+          "cachedResultName": "qs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/199AfglVui9Vk5SYePD_yR83iH98YtPnB3brLd43hPd4/edit#gid=720457699"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        5376,
+        1312
+      ],
+      "id": "d81670de-90ec-41ec-9bd6-e108ccfbba3b",
+      "name": "Get row(s) in sheet2",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PUbFwLFjJoXzwDHa",
+          "name": "Google Sheets account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        5600,
+        1312
+      ],
+      "id": "b7ce0474-379a-470a-b068-6189a2e2d52c",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "numberInputs": 4
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        8608,
+        1472
+      ],
+      "id": "4a6b7b54-78e7-42e4-93e1-c01cc355373e",
+      "name": "Merge3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "02809cae-ab63-466b-9a59-e0554a104167",
+              "name": "chunks_used",
+              "value": "={{ $json.intermediateSteps[0].observation }}",
+              "type": "string"
+            },
+            {
+              "id": "73e8d0c5-563d-4f9b-b98e-2b28763f843e",
+              "name": "answer",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            },
+            {
+              "id": "bbdaf1a7-c827-4596-ada1-7b05f282ca58",
+              "name": "Question",
+              "value": "={{ $('Loop Over Items1').item.json.Questions }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        6288,
+        1168
+      ],
+      "id": "f0647509-2749-4cbc-a02a-afb5416296b8",
+      "name": "Chunks+answer"
+    },
+    {
+      "parameters": {
+        "jsCode": "// 1. Παίρνουμε όλα τα δεδομένα από τον προηγούμενο κόμβο (Edit Fields)\nconst itemJson = $input.first().json;\n\n// --- ΜΕΡΟΣ 1: Η ΕΡΩΤΗΣΗ ---\n// Τραβάμε το πεδίο Question που μόλις πρόσθεσες\nconst question = itemJson.Question || \"Δεν βρέθηκε ερώτηση\";\n\n\n// --- ΜΕΡΟΣ 2: ΚΑΘΑΡΙΣΜΟΣ ΤΗΣ ΑΠΑΝΤΗΣΗΣ ---\nconst raw = String(itemJson.answer || '');\n\nconst openTag = '<ΑΠΑΝΤΗΣΗ>';\nconst lastOpen = raw.lastIndexOf(openTag);\n\nlet finalAnswer = '';\n\nif (lastOpen !== -1) {\n  // Πάρε ΟΛΟ το κείμενο μετά το τελευταίο <ΑΠΑΝΤΗΣΗ>\n  finalAnswer = raw.slice(lastOpen + openTag.length);\n} else {\n  // Fallback: αν δεν υπάρχει καν tag\n  finalAnswer = raw;\n}\n\n// Μετατροπή \\n σε πραγματικά line breaks + καθάρισμα\nfinalAnswer = finalAnswer.replace(/\\\\n/g, '\\n').trim();\n\n\n// --- ΜΕΡΟΣ 3: ΕΞΑΓΩΓΗ ΚΑΙ ΜΟΡΦΟΠΟΙΗΣΗ ΤΩΝ CHUNKS ---\nconst chunksUsedData = itemJson.chunks_used;\nlet stepsArray = [];\n\ntry {\n    // Το κάνουμε parse αν έρχεται ως String\n    stepsArray = typeof chunksUsedData === 'string' ? JSON.parse(chunksUsedData) : (chunksUsedData || []);\n} catch (e) {\n    // Αν αποτύχει, το αφήνουμε άδειο\n}\n\nlet formattedChunks = \"\";\nlet contextId = 1;\n\nif (Array.isArray(stepsArray)) {\n    for (const step of stepsArray) {\n        if (step.type === \"text\" && step.text) {\n            try {\n                const parsed = JSON.parse(step.text);\n                \n                if (parsed.pageContent) {\n                    formattedChunks += `<context id=${contextId}>\\n${parsed.pageContent}\\n</context>\\n\\n`;\n                    contextId++;\n                }\n            } catch (error) {\n                continue;\n            }\n        }\n    }\n}\n\n// --- ΜΕΡΟΣ 4: ΕΠΙΣΤΡΟΦΗ ΤΟΥ \"ΠΙΝΑΚΑ\" (3 ΣΤΗΛΕΣ ΠΛΕΟΝ) ---\nreturn [\n  {\n    json: {\n      Question: question,\n      answer: finalAnswer,\n      chunks: formattedChunks.trim()\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6576,
+        1168
+      ],
+      "id": "cf99b675-ae88-4953-a09f-6c25c3c1a83e",
+      "name": "clean output"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "199AfglVui9Vk5SYePD_yR83iH98YtPnB3brLd43hPd4",
+          "mode": "list",
+          "cachedResultName": "GTmaria",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/199AfglVui9Vk5SYePD_yR83iH98YtPnB3brLd43hPd4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1537653750,
+          "mode": "list",
+          "cachedResultName": "GD",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/199AfglVui9Vk5SYePD_yR83iH98YtPnB3brLd43hPd4/edit#gid=1537653750"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Question": "={{ $json.Question }}",
+            "Chunks": "={{ $json.chunks }}",
+            "Answer ": "={{ $json.answer }}"
+          },
+          "matchingColumns": [
+            "Question"
+          ],
+          "schema": [
+            {
+              "id": "Question",
+              "displayName": "Question",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Ground Truth Context",
+              "displayName": "Ground Truth Context",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Ground Truth Ans",
+              "displayName": "Ground Truth Ans",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Πηγή",
+              "displayName": "Πηγή",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Answer ",
+              "displayName": "Answer ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Chunks",
+              "displayName": "Chunks",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        6784,
+        1168
+      ],
+      "id": "232587e6-4c71-4616-825c-f5e9113b9a29",
+      "name": "Update the Answer",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PUbFwLFjJoXzwDHa",
+          "name": "Google Sheets account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "199AfglVui9Vk5SYePD_yR83iH98YtPnB3brLd43hPd4",
+          "mode": "list",
+          "cachedResultName": "GTmaria",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/199AfglVui9Vk5SYePD_yR83iH98YtPnB3brLd43hPd4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1537653750,
+          "mode": "list",
+          "cachedResultName": "GD",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/199AfglVui9Vk5SYePD_yR83iH98YtPnB3brLd43hPd4/edit#gid=1537653750"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Question",
+              "lookupValue": "={{ $('Loop Over Items1').item.json.Questions }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        6608,
+        1440
+      ],
+      "id": "f8b85a65-eebc-4f81-baf4-4dedd5423a51",
+      "name": "Get ground truth",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PUbFwLFjJoXzwDHa",
+          "name": "Google Sheets account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "199AfglVui9Vk5SYePD_yR83iH98YtPnB3brLd43hPd4",
+          "mode": "list",
+          "cachedResultName": "GTmaria",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/199AfglVui9Vk5SYePD_yR83iH98YtPnB3brLd43hPd4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1128848071,
+          "mode": "list",
+          "cachedResultName": "AnswerRecall",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/199AfglVui9Vk5SYePD_yR83iH98YtPnB3brLd43hPd4/edit#gid=1128848071"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Question": "={{ $('Merge').item.json.Question }}",
+            "Score": "={{ $json.score }}",
+            "Reason ": "={{ $json.reason }}"
+          },
+          "matchingColumns": [
+            "Question"
+          ],
+          "schema": [
+            {
+              "id": "Question",
+              "displayName": "Question",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Score",
+              "displayName": "Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Reason ",
+              "displayName": "Reason ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        8240,
+        1840
+      ],
+      "id": "7b05cbb8-f2b7-4a76-b235-3749f464fd1e",
+      "name": "Update row in sheet3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "PUbFwLFjJoXzwDHa",
+          "name": "Google Sheets account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-oss:latest",
+          "mode": "list",
+          "cachedResultName": "gpt-oss:latest"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Είσαι ένας αυστηρός και αντικειμενικός αξιολογητής συστημάτων AI. Η αποστολή σου είναι να αξιολογήσεις τη μετρική \"Answer Recall\" (Πληρότητα Απάντησης).\nΘα σου δοθεί η Ιδανική Απάντηση (Ground Truth Answer) και η Παραγόμενη Απάντηση (Answer) από ένα σύστημα.\nΠρέπει να βαθμολογήσεις κατά πόσο η Παραγόμενη Απάντηση περιλαμβάνει ΟΛΕΣ τις κρίσιμες πληροφορίες και τα δεδομένα που υπάρχουν στην Ιδανική Απάντηση. \n\nΔεν μας νοιάζει αν η Παραγόμενη Απάντηση χρησιμοποιεί διαφορετικές λέξεις (συνώνυμα) ή διαφορετική σύνταξη, αρκεί το νοηματικό περιεχόμενο και τα δεδομένα της Ιδανικής Απάντησης να καλύπτονται πλήρως και να μην έχουν παραλειφθεί.\n\nΟδηγίες Βαθμολόγησης (από 0 έως 5):\n- 5: Τέλεια πληρότητα. Η Παραγόμενη Απάντηση περιέχει όλα ανεξαιρέτως τα βασικά στοιχεία της Ιδανικής Απάντησης.\n- 4: Πολύ καλή πληρότητα. Καλύπτει τα περισσότερα στοιχεία, αλλά ίσως παραλείπει μια πολύ μικρή ή δευτερεύουσα λεπτομέρεια.\n- 2-3: Μερική πληρότητα. Η Παραγόμενη Απάντηση αναφέρει κάποια σωστά στοιχεία, αλλά παραλείπει σημαντικές πληροφορίες (π.χ. λέει τα μισά).\n- 1: Ελλιπής. Η Παραγόμενη Απάντηση περιέχει ελάχιστα από τα στοιχεία της Ιδανικής Απάντησης (έχει χάσει την ουσία).\n- 0: Καμία σχέση/Πλήρης Παράλειψη. Η Παραγόμενη Απάντηση δεν περιέχει καμία απολύτως από τις πληροφορίες της Ιδανικής Απάντησης.\n\n--- ΔΕΔΟΜΕΝΑ ---\nΙΔΑΝΙΚΗ ΑΠΑΝΤΗΣΗ (GROUND TRUTH ANSWER):\n{{ $json['Ground Truth Ans'] }}\n\nΠΑΡΑΓΟΜΕΝΗ ΑΠΑΝΤΗΣΗ:\n{{ $json['Answer '] }}\n----------------\n\nΕπίστρεψε το αποτέλεσμά σου ΑΥΣΤΗΡΑ ως ένα έγκυρο JSON αντικείμενο, χωρίς markdown tags (π.χ. ```json), με την εξής μορφή:\n{\n  \"reason\": \"Σύντομη εξήγηση στα ελληνικά. Αν λείπουν πληροφορίες, ανέφερε συγκεκριμένα τι υπάρχει στην Ιδανική Απάντηση που ΔΕΝ αναφέρθηκε στην Παραγόμενη Απάντηση.\",\n  \"score\": <ακέραιος αριθμός 0-5>\n}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.ollama",
+      "typeVersion": 1,
+      "position": [
+        7648,
+        1840
+      ],
+      "id": "30117984-0264-43f0-ac40-169e5affb241",
+      "name": "Answer Recall",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ssQt209O8RVAo2M2",
+          "name": "Ollama account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loop through all incoming items\nreturn items.map(item => {\n  // 1. Get the string from the 'content' field\n  const rawContent = item.json.content;\n\n  try {\n    // 2. Parse the string into a real JSON object\n    const parsedData = JSON.parse(rawContent);\n\n    // 3. Return only the fields you want for your table\n    return {\n      score: parsedData.score,\n      reason: parsedData.reason\n    };\n  } catch (error) {\n    // Handle cases where the LLM output might not be valid JSON\n    return {\n      score: 0,\n      reason: \"Error parsing LLM response\",\n      error: error.message\n    };\n  }\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        8000,
+        1840
+      ],
+      "id": "6c49f2c4-120d-4499-9e28-20acaec1c76e",
+      "name": "Code for recall"
+    },
+    {
+      "parameters": {
+        "model": "bge-m3:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        5968,
+        1680
+      ],
+      "id": "be514a43-c041-4a1d-867b-d5dc8a3cbf0c",
+      "name": "Embeddings Ollama4",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ssQt209O8RVAo2M2",
+          "name": "Ollama account 4"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Faithfulness": {
+      "main": [
+        [
+          {
+            "node": "Code in Faithfulness",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer Relevance": {
+      "main": [
+        [
+          {
+            "node": "Code for relevance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Context Precision": {
+      "main": [
+        [
+          {
+            "node": "Code for ContextPrecision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model6": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reranker Cohere3": {
+      "ai_reranker": [
+        [
+          {
+            "node": "Supabase Vector Store1",
+            "type": "ai_reranker",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Chunks+answer",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get ground truth",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Context Precision",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Faithfulness",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Answer Relevance",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Answer Recall",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code for ContextPrecision": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in Faithfulness": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code for relevance": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Update row in sheet2": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chunks+answer": {
+      "main": [
+        [
+          {
+            "node": "clean output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "clean output": {
+      "main": [
+        [
+          {
+            "node": "Update the Answer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update the Answer": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get ground truth": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Update row in sheet3": {
+      "main": [
+        [
+          {
+            "node": "Merge3",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Answer Recall": {
+      "main": [
+        [
+          {
+            "node": "Code for recall",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code for recall": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama4": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4e00e45994af68f368c9f70d96890226ba553d43b1552beb79c1c6cc895e128f"
+  }
+}

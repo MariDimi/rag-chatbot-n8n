@@ -1,0 +1,716 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        7184,
+        304
+      ],
+      "id": "e0d3876c-41d8-49be-b66b-b6d9b6864f15",
+      "name": "Supabase Vector Store6",
+      "credentials": {
+        "supabaseApi": {
+          "id": "hwaSdhh0Ol1TIpDf",
+          "name": "sum Sources"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "bge-m3:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        7104,
+        464
+      ],
+      "id": "c307e9c3-032c-428b-bda4-7d17bae76831",
+      "name": "Embeddings Ollama7",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ssQt209O8RVAo2M2",
+          "name": "Ollama account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "textSplittingMode": "custom",
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "file_id",
+                "value": "={{ $('Download file4').item.json.file_id }}"
+              },
+              {
+                "name": "file_name",
+                "value": "={{ $('Download file4').item.json.file_name }}"
+              }
+            ]
+          }
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        7232,
+        480
+      ],
+      "id": "8f84d8e4-2d85-4181-aaf4-55ba735df40f",
+      "name": "Default Data Loader2"
+    },
+    {
+      "parameters": {
+        "chunkSize": 2000,
+        "chunkOverlap": 200,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        7232,
+        656
+      ],
+      "id": "1eba999c-b384-4eb6-b6df-592186d1a96d",
+      "name": "Recursive Character Text Splitter2"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Loop Over Items3').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "text/plain"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        6000,
+        336
+      ],
+      "id": "c43ac259-dfda-41de-8358-10619ac16ee4",
+      "name": "Download file4",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7JoI6nPlq5ipTCHE",
+          "name": "Practipal Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "existing_files",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "file_id",
+              "fieldValue": "={{ $('Loop Over Items3').item.json.id }}"
+            },
+            {
+              "fieldId": "file_name",
+              "fieldValue": "={{ $('Loop Over Items3').item.json.name }}"
+            },
+            {
+              "fieldId": "file_version",
+              "fieldValue": "={{ $('Loop Over Items3').item.json.version }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        5824,
+        336
+      ],
+      "id": "0851c6ec-4281-48b9-993e-eaa3b7afa6e0",
+      "name": "Create a row2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "hwaSdhh0Ol1TIpDf",
+          "name": "sum Sources"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        5184,
+        304
+      ],
+      "id": "fece072d-1313-400e-b0c5-eae8c4287176",
+      "name": "Loop Over Items3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "efe37374-3a28-4642-b612-da90e094772a",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "={{ $json.file_name }}",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5648,
+        320
+      ],
+      "id": "732368d6-e185-4069-8b25-0a3459020d37",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "existing_files",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "file_id",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        5440,
+        320
+      ],
+      "id": "f5988e69-9938-4526-9064-fc59986042ab",
+      "name": "Get a row2",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "hwaSdhh0Ol1TIpDf",
+          "name": "sum Sources"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "value": "1UKimkraCZksbO95oEv7HRt8v3_MMNkKf",
+            "mode": "list",
+            "cachedResultName": "Sources",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1UKimkraCZksbO95oEv7HRt8v3_MMNkKf"
+          }
+        },
+        "options": {
+          "fields": [
+            "name",
+            "id",
+            "version"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        4912,
+        304
+      ],
+      "id": "872ab622-b41f-4cf1-b8e5-a4eb8d2c8faa",
+      "name": "Search files and folders4",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "7JoI6nPlq5ipTCHE",
+          "name": "Practipal Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=This is the document we want to write its summary.\n<document> \n{{ $('Extract from File').first().json.data }} \n</document>\nPlease give a short succinct context in Greek. Provide a high-level narrative summary of the attached document. I do not want a list of specific data points, numbers, or deep-dive details. Instead, explain the \"general idea\" of the document. Answer only with the succinct context and nothing else.\nMANDATORY OUTPUT FORMAT\nThe final answer MUST be located in the end EXCLUSIVELY under the following tag:\n<ΑΠΑΝΤΗΣΗ>\n(final answer text)\n\nAny text outside the tag is considered internal reasoning and does NOT form part of the answer."
+      },
+      "id": "379c6c70-a797-4706-b654-aa2649622534",
+      "name": "Generate Contextual Text1",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        6624,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-oss:latest",
+        "options": {}
+      },
+      "id": "c05deb75-514b-46eb-b1da-9689ac8e65b1",
+      "name": "Ollama Chat Model5",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        6624,
+        320
+      ],
+      "credentials": {
+        "ollamaApi": {
+          "id": "ssQt209O8RVAo2M2",
+          "name": "Ollama account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = String($input.first().json.text || '');\n\nconst openTag = '<ΑΠΑΝΤΗΣΗ>';\nconst lastOpen = raw.lastIndexOf(openTag);\n\nlet answer = '';\n\nif (lastOpen !== -1) {\n  // Πάρε ΟΛΟ το κείμενο μετά το τελευταίο <ΑΠΑΝΤΗΣΗ>\n  answer = raw.slice(lastOpen + openTag.length);\n} else {\n  // Fallback: αν δεν υπάρχει καν tag\n  answer = raw;\n}\n\n// Μετατροπή \\n σε πραγματικά line breaks + καθάρισμα\nanswer = answer.replace(/\\\\n/g, '\\n').trim();\n\nreturn [\n  {\n    text: answer\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6944,
+        160
+      ],
+      "id": "21a4a140-44d0-4681-9bff-8f9d40c8d264",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "id": "90d55fb4-171b-4341-a9b1-daac35a0eebe",
+      "name": "Extract from File",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        6400,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{$binary.data.fileExtension}}",
+                    "rightValue": "txt",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "e96fac50-7e47-4951-a5cd-fb41df9f0678"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "TXT"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5e1f680b-6aa9-4faf-9cbe-fa30948182f4",
+                    "leftValue": "={{$binary.data.fileExtension}}",
+                    "rightValue": "pdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "PDF"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        6176,
+        336
+      ],
+      "id": "a1223cd1-eedd-4fe0-be54-e97438925d82",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "id": "85a4d3b7-67d6-4f9f-98d7-ffa0d61b510c",
+      "name": "Extract from File1",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        6416,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=This is the document we want to write its summary.\n<document> \n{{ $('Extract from File1').first().json.text }} \n</document>\nPlease give a short succinct context in Greek. Provide a high-level narrative summary of the attached document. I do not want a list of specific data points, numbers, or deep-dive details. Instead, explain the \"general idea\" of the document. Answer only with the succinct context and nothing else.\nMANDATORY OUTPUT FORMAT\nThe final answer MUST be located in the end EXCLUSIVELY under the following tag:\n<ΑΠΑΝΤΗΣΗ>\n(final answer text)\n\nAny text outside the tag is considered internal reasoning and does NOT form part of the answer."
+      },
+      "id": "309429fb-4bb2-4fee-9d96-2ed4a7014a52",
+      "name": "Generate Contextual Text",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        6592,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-oss:latest",
+        "options": {}
+      },
+      "id": "fb772acf-217d-4855-beeb-6d0d31f75381",
+      "name": "Ollama Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        6592,
+        592
+      ],
+      "credentials": {
+        "ollamaApi": {
+          "id": "ssQt209O8RVAo2M2",
+          "name": "Ollama account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = String($input.first().json.text || '');\n\nconst openTag = '<ΑΠΑΝΤΗΣΗ>';\nconst lastOpen = raw.lastIndexOf(openTag);\n\nlet answer = '';\n\nif (lastOpen !== -1) {\n  // Πάρε ΟΛΟ το κείμενο μετά το τελευταίο <ΑΠΑΝΤΗΣΗ>\n  answer = raw.slice(lastOpen + openTag.length);\n} else {\n  // Fallback: αν δεν υπάρχει καν tag\n  answer = raw;\n}\n\n// Μετατροπή \\n σε πραγματικά line breaks + καθάρισμα\nanswer = answer.replace(/\\\\n/g, '\\n').trim();\n\nreturn [\n  {\n    text: answer\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6912,
+        432
+      ],
+      "id": "a566f516-6e86-4091-ba67-ca12c20ca456",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        4704,
+        304
+      ],
+      "id": "a1e8a054-ac9d-4e7d-97d3-75b1066cbbd7",
+      "name": "Creation Summ DB",
+      "disabled": true
+    }
+  ],
+  "connections": {
+    "Supabase Vector Store6": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama7": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store6",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader2": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store6",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter2": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader2",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file4": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row2": {
+      "main": [
+        [
+          {
+            "node": "Download file4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items3": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get a row2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create a row2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a row2": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders4": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Contextual Text1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Contextual Text1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Generate Contextual Text1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "Generate Contextual Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Contextual Text": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Contextual Text",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Creation Summ DB": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4e00e45994af68f368c9f70d96890226ba553d43b1552beb79c1c6cc895e128f"
+  }
+}
